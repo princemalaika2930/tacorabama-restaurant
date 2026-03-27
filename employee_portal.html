@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Portal - Restaurant Payroll System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --ghana-green: #006b3f;
+            --ghana-yellow: #fcd116;
+            --ghana-red: #c60c30;
+            --card-bg: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --hover-bg: #f5f5f5;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        body.dark-mode {
+            --card-bg: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --hover-bg: #3a3a3a;
+            background: #1a1a2e;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo h1 {
+            color: var(--ghana-green);
+            font-size: 1.5em;
+        }
+
+        .logo p {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .live-clock {
+            background: var(--ghana-green);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .theme-toggle, .logout-btn {
+            background: var(--ghana-yellow);
+            color: var(--ghana-green);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .logout-btn {
+            background: var(--ghana-red);
+            color: white;
+            border-radius: 8px;
+            width: auto;
+            padding: 8px 20px;
+            font-size: 14px;
+        }
+
+        .profile-section {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .profile-avatar {
+            font-size: 80px;
+            margin-bottom: 15px;
+        }
+
+        .profile-card h2 {
+            color: var(--ghana-green);
+            margin-bottom: 10px;
+        }
+
+        .profile-card .position {
+            color: var(--ghana-yellow);
+            background: rgba(252, 209, 22, 0.2);
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 10px 0;
+        }
+
+        .profile-details {
+            text-align: left;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--ghana-green), #004d2e);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-card h2 {
+            color: var(--ghana-green);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--ghana-yellow);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--ghana-green);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            display: inline-block;
+        }
+
+        .status-paid {
+            background: #c6f6d5;
+            color: #006b3f;
+        }
+
+        .status-pending {
+            background: #fed7d7;
+            color: #c60c30;
+        }
+
+        .shift-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+
+        .shift-morning { background: #fcd116; color: #006b3f; }
+        .shift-afternoon { background: #17a2b8; color: white; }
+        .shift-evening { background: #6f42c1; color: white; }
+        .shift-night { background: #343a40; color: white; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+        }
+
+        .modal-content h3 {
+            color: var(--ghana-green);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: var(--ghana-green);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--ghana-red);
+            color: white;
+        }
+
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 3000;
+            display: none;
+        }
+
+        .alert.show { display: block; }
+        .alert-success { background: #006b3f; color: white; }
+        .alert-error { background: #c60c30; color: white; }
+
+        @media (max-width: 768px) {
+            .profile-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <h1>🍽️ Employee Portal</h1>
+                <p>Restaurant Payroll System - Tamale, Ghana</p>
+            </div>
+            <div class="user-info">
+                <div class="live-clock" id="liveClock"></div>
+                <button class="theme-toggle" onclick="toggleDarkMode()">🌓</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-card">
+                <div class="profile-avatar" id="profileAvatar">👨‍🍳</div>
+                <h2 id="employeeName">Loading...</h2>
+                <span class="position" id="employeePosition">Loading...</span>
+                <div class="profile-details">
+                    <div class="detail-row"><span>Employee ID:</span><span id="employeeId"></span></div>
+                    <div class="detail-row"><span>Email:</span><span id="employeeEmail">-</span></div>
+                    <div class="detail-row"><span>Phone:</span><span id="employeePhone">-</span></div>
+                    <div class="detail-row"><span>Hourly Rate:</span><span id="employeeRate">GH₵ 0</span></div>
+                </div>
+                <button class="btn btn-primary" onclick="showChangePasswordModal()" style="margin-top: 20px; width: 100%;">🔑 Change Password</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="value" id="totalHours">0</div>
+                    <div class="label">Total Hours Worked</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="totalEarnings">GH₵ 0</div>
+                    <div class="label">Total Earnings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="totalTips">GH₵ 0</div>
+                    <div class="label">Tips Collected</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="avgHours">0</div>
+                    <div class="label">Avg Hours/Day</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2>📋 My Attendance History</h2>
+            <div class="table-container">
+                <table id="attendanceTable">
+                    <thead>
+                        <tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Shift</th><th>Tips</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="attendanceTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2>💰 My Payroll History</h2>
+            <div class="table-container">
+                <table id="payrollTable">
+                    <thead>
+                        <tr><th>Month</th><th>Hours</th><th>Rate</th><th>Salary</th><th>Tips</th><th>Total</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="payrollTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h3>🔑 Change Password</h3>
+            <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" id="currentPassword" placeholder="Enter current password">
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="newPassword" placeholder="Enter new password (min 4 characters)">
+            </div>
+            <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm new password">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+                <button class="btn btn-danger" onclick="closePasswordModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <script>
+        let currentEmployee = null;
+        let attendanceRecords = [];
+        let payrollRecords = [];
+
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const userType = localStorage.getItem('userType');
+            
+            console.log('Auth Check:', { isLoggedIn, userType });
+            
+            if (isLoggedIn !== 'true' || userType !== 'employee') {
+                window.location.href = 'index.html';
+                return;
+            }
+            loadEmployeeData();
+        }
+
+        function loadEmployeeData() {
+            const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+            const empId = localStorage.getItem('employeeId');
+            
+            console.log('Loading employee:', { empId, employees });
+            
+            currentEmployee = employees.find(e => e.id === empId);
+            
+            if (!currentEmployee) {
+                console.error('Employee not found!');
+                showAlert('Employee data not found. Please contact admin.', 'error');
+                setTimeout(() => logout(), 2000);
+                return;
+            }
+            
+            // Set avatar based on position
+            const avatarMap = {
+                'Chef': '👨‍🍳', 'Cook': '👩‍🍳', 'Server': '👨‍🍽️', 
+                'Bartender': '🍸', 'Manager': '👔', 'Cleaner': '🧹'
+            };
+            document.getElementById('profileAvatar').textContent = avatarMap[currentEmployee.position] || '👤';
+            
+            document.getElementById('employeeName').textContent = currentEmployee.name;
+            document.getElementById('employeePosition').textContent = currentEmployee.position;
+            document.getElementById('employeeId').textContent = currentEmployee.id;
+            document.getElementById('employeeEmail').textContent = currentEmployee.email || '-';
+            document.getElementById('employeePhone').textContent = currentEmployee.phone || '-';
+            document.getElementById('employeeRate').textContent = `GH₵ ${currentEmployee.hourlyRate.toFixed(2)}`;
+            
+            loadAttendanceHistory();
+            loadPayrollHistory();
+            updateStats();
+        }
+
+        function loadAttendanceHistory() {
+            attendanceRecords = JSON.parse(localStorage.getItem('attendance') || '[]');
+            const myAttendance = attendanceRecords.filter(a => a.empId === currentEmployee.id);
+            
+            const tbody = document.getElementById('attendanceTableBody');
+            if (myAttendance.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">No attendance records found</td></tr>';
+                return;
+            }
+            
+            const sorted = myAttendance.sort((a, b) => b.date.localeCompare(a.date));
+            tbody.innerHTML = sorted.map(record => {
+                const shift = getShiftType(record.clockIn);
+                return `
+                    <tr>
+                        <td>${record.date}</td>
+                        <td>${record.clockIn}</td>
+                        <td>${record.clockOut || '--'}</td>
+                        <td>${record.hoursWorked.toFixed(1)}h</td>
+                        <td><span class="shift-badge ${shift.class}">${record.shift || shift.name}</span></td>
+                        <td>GH₵ ${(record.tips || 0).toFixed(2)}</td>
+                        <td><span class="status-badge status-paid">Completed</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function loadPayrollHistory() {
+            payrollRecords = JSON.parse(localStorage.getItem('payroll') || '[]');
+            const myPayroll = payrollRecords.filter(p => p.empId === currentEmployee.id);
+            
+            const tbody = document.getElementById('payrollTableBody');
+            if (myPayroll.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">No payroll records found</td></tr>';
+                return;
+            }
+            
+            const sorted = myPayroll.sort((a, b) => b.month.localeCompare(a.month));
+            tbody.innerHTML = sorted.map(record => {
+                const monthName = new Date(record.month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                return `
+                    <tr>
+                        <td>${monthName}</td>
+                        <td>${record.hoursWorked.toFixed(1)}h</td>
+                        <td>GH₵ ${record.hourlyRate.toFixed(2)}</td>
+                        <td>GH₵ ${record.salary.toFixed(2)}</td>
+                        <td>GH₵ ${record.tips.toFixed(2)}</td>
+                        <td><strong>GH₵ ${record.total.toFixed(2)}</strong></td>
+                        <td><span class="status-badge ${record.status === 'paid' ? 'status-paid' : 'status-pending'}">${record.status === 'paid' ? 'Paid' : 'Pending'}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateStats() {
+            const myAttendance = attendanceRecords.filter(a => a.empId === currentEmployee.id);
+            const totalHours = myAttendance.reduce((sum, a) => sum + a.hoursWorked, 0);
+            const totalTips = myAttendance.reduce((sum, a) => sum + (a.tips || 0), 0);
+            const totalEarnings = (totalHours * currentEmployee.hourlyRate) + totalTips;
+            
+            const daysWorked = new Set(myAttendance.map(a => a.date)).size;
+            const avgHours = daysWorked > 0 ? totalHours / daysWorked : 0;
+            
+            document.getElementById('totalHours').textContent = totalHours.toFixed(1);
+            document.getElementById('totalEarnings').textContent = `GH₵ ${totalEarnings.toFixed(2)}`;
+            document.getElementById('totalTips').textContent = `GH₵ ${totalTips.toFixed(2)}`;
+            document.getElementById('avgHours').textContent = avgHours.toFixed(1);
+        }
+
+        function getShiftType(clockIn) {
+            if (!clockIn) return { name: 'Morning', class: 'shift-morning' };
+            const hour = parseInt(clockIn.split(':')[0]);
+            if (hour >= 5 && hour < 12) return { name: 'Morning', class: 'shift-morning' };
+            if (hour >= 12 && hour < 17) return { name: 'Afternoon', class: 'shift-afternoon' };
+            if (hour >= 17 && hour < 22) return { name: 'Evening', class: 'shift-evening' };
+            return { name: 'Night', class: 'shift-night' };
+        }
+
+        function showChangePasswordModal() {
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('passwordModal').classList.add('active');
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('active');
+        }
+
+        function changePassword() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            
+            if (current !== currentEmployee.password) {
+                showAlert('Current password is incorrect!', 'error');
+                return;
+            }
+            
+            if (newPass.length < 4) {
+                showAlert('Password must be at least 4 characters!', 'error');
+                return;
+            }
+            
+            if (newPass !== confirm) {
+                showAlert('New passwords do not match!', 'error');
+                return;
+            }
+            
+            const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+            const index = employees.findIndex(e => e.id === currentEmployee.id);
+            if (index !== -1) {
+                employees[index].password = newPass;
+                localStorage.setItem('employees', JSON.stringify(employees));
+                currentEmployee.password = newPass;
+                showAlert('Password changed successfully!', 'success');
+                closePasswordModal();
+                logActivity('Changed password');
+            }
+        }
+
+        function updateLiveClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateString = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            document.getElementById('liveClock').innerHTML = `📅 ${dateString} | ⏰ ${timeString}`;
+        }
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock();
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert alert-${type} show`;
+            setTimeout(() => alert.classList.remove('show'), 3000);
+        }
+
+        function logActivity(message) {
+            let activities = JSON.parse(localStorage.getItem('activityLogs') || '[]');
+            activities.unshift({
+                message: `${currentEmployee?.name || 'Employee'}: ${message}`,
+                time: new Date().toLocaleString()
+            });
+            if (activities.length > 50) activities = activities.slice(0, 50);
+            localStorage.setItem('activityLogs', JSON.stringify(activities));
+        }
+
+        if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
+        checkAuth();
+
+        window.toggleDarkMode = toggleDarkMode;
+        window.logout = logout;
+        window.showChangePasswordModal = showChangePasswordModal;
+        window.closePasswordModal = closePasswordModal;
+        window.changePassword = changePassword;
+    </script>
+</body>
+</html>

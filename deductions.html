@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deductions & Allowances - Restaurant Payroll System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --ghana-green: #006b3f;
+            --ghana-yellow: #fcd116;
+            --ghana-red: #c60c30;
+            --dark-bg: #1a1a2e;
+            --card-bg: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --sidebar-bg: #1a1a2e;
+            --sidebar-text: #fff;
+            --hover-bg: #f5f5f5;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100%;
+            background: var(--sidebar-bg);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--ghana-yellow);
+        }
+
+        .sidebar-header h2 {
+            color: var(--ghana-yellow);
+            font-size: 1.3em;
+            margin-top: 10px;
+        }
+
+        .restaurant-icon {
+            font-size: 50px;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 12px 25px;
+            margin: 5px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--sidebar-text);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: var(--ghana-green);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .page-title h1 {
+            color: var(--ghana-green);
+            font-size: 1.5em;
+        }
+
+        .page-title p {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logout-btn {
+            background: var(--ghana-red);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background: #a00a26;
+            transform: translateY(-2px);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--ghana-green), #004d2e);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .stat-card .label {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: var(--ghana-green);
+            color: white;
+        }
+
+        .tab:hover:not(.active) {
+            background: var(--hover-bg);
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            color: var(--ghana-green);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--ghana-yellow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--ghana-green);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--ghana-green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #004d2e;
+            transform: translateY(-2px);
+        }
+
+        .btn-yellow {
+            background: var(--ghana-yellow);
+            color: var(--ghana-green);
+        }
+
+        .btn-danger {
+            background: var(--ghana-red);
+            color: white;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--ghana-green);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:hover {
+            background: var(--hover-bg);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            color: var(--ghana-green);
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 3000;
+            animation: slideIn 0.3s ease;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #006b3f;
+            color: white;
+        }
+
+        .alert-error {
+            background: #c60c30;
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -260px;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="restaurant-icon">🍽️</div>
+            <h2>Restaurant Payroll</h2>
+            <p style="color: #aaa; font-size: 0.8em; margin-top: 5px;">Tamale, Ghana</p>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item" onclick="navigateTo('dashboard')">
+                <i>📊</i> Dashboard
+            </div>
+            <div class="nav-item" onclick="navigateTo('employees')">
+                <i>👥</i> Employees
+            </div>
+            <div class="nav-item" onclick="navigateTo('attendance')">
+                <i>⏰</i> Attendance
+            </div>
+            <div class="nav-item" onclick="navigateTo('payroll')">
+                <i>💰</i> Payroll
+            </div>
+            <div class="nav-item" onclick="navigateTo('reports')">
+                <i>📈</i> Reports
+            </div>
+            <div class="nav-item active" onclick="navigateTo('deductions')">
+                <i>📉</i> Deductions & Allowances
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>📉 Deductions & Allowances</h1>
+                <p>Configure payroll deductions, allowances, and tax settings</p>
+            </div>
+            <div class="user-info">
+                <span>Welcome, <strong id="usernameDisplay">Admin</strong></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number" id="totalDeductions">GH₵ 0</div>
+                <div class="label">Total Monthly Deductions</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalAllowances">GH₵ 0</div>
+                <div class="label">Total Monthly Allowances</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalTaxCollected">GH₵ 0</div>
+                <div class="label">PAYE Tax Collected</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalSSNIT">GH₵ 0</div>
+                <div class="label">SSNIT Contributions</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('global')">🌍 Global Settings</div>
+            <div class="tab" onclick="switchTab('employee')">👥 Per Employee Settings</div>
+            <div class="tab" onclick="switchTab('tax')">💰 Tax Brackets</div>
+        </div>
+
+        <!-- Global Settings Tab -->
+        <div id="globalTab" class="tab-content">
+            <div class="card">
+                <h2>🌍 Global Deduction Rates</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>SSNIT Employee Rate (%)</label>
+                        <input type="number" id="globalSSNITRate" step="0.1" value="5.5">
+                        <small>Standard: 5.5% of basic salary</small>
+                    </div>
+                    <div class="form-group">
+                        <label>SSNIT Employer Rate (%)</label>
+                        <input type="number" id="globalSSNITEmployerRate" step="0.1" value="13">
+                        <small>Employer contributes 13%</small>
+                    </div>
+                    <div class="form-group">
+                        <label>NHIS Rate (%)</label>
+                        <input type="number" id="globalNHISRate" step="0.1" value="2.5">
+                        <small>National Health Insurance</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>✨ Global Allowance Settings</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Night Shift Premium (%)</label>
+                        <input type="number" id="globalNightShiftRate" step="0.1" value="20">
+                        <small>Extra % per hour for night shifts (10pm - 5am)</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Overtime Rate (x)</label>
+                        <input type="number" id="globalOvertimeRate" step="0.1" value="1.5">
+                        <small>Multiplier for hours above 40/week</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Weekend Bonus (GH₵/day)</label>
+                        <input type="number" id="globalWeekendBonus" step="0.01" value="50">
+                        <small>Extra payment for weekend work</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Public Holiday Rate (x)</label>
+                        <input type="number" id="globalHolidayRate" step="0.1" value="2">
+                        <small>Double pay for public holidays</small>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="saveGlobalSettings()">💾 Save Global Settings</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🏦 Default Allowances (Fixed Monthly)</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Transport Allowance (GH₵)</label>
+                        <input type="number" id="defaultTransport" step="0.01" value="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Meal Allowance (GH₵)</label>
+                        <input type="number" id="defaultMeal" step="0.01" value="150">
+                    </div>
+                    <div class="form-group">
+                        <label>Housing Allowance (GH₵)</label>
+                        <input type="number" id="defaultHousing" step="0.01" value="200">
+                    </div>
+                    <div class="form-group">
+                        <label>13th Month Bonus (%)</label>
+                        <input type="number" id="default13thMonth" step="0.1" value="100">
+                        <small>Percentage of monthly salary</small>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="saveDefaultAllowances()">💾 Save Default Allowances</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Per Employee Settings Tab -->
+        <div id="employeeTab" class="tab-content" style="display: none;">
+            <div class="card">
+                <h2>👥 Employee Allowances & Deductions</h2>
+                <div class="form-group">
+                    <label>Select Employee</label>
+                    <select id="employeeSelect" onchange="loadEmployeeCompensation()">
+                        <option value="">Choose employee...</option>
+                    </select>
+                </div>
+                
+                <div id="employeeCompForm" style="display: none;">
+                    <h3 style="color: var(--ghana-green); margin: 20px 0 15px;">✨ Custom Allowances</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Transport Allowance (GH₵)</label>
+                            <input type="number" id="empTransport" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Meal Allowance (GH₵)</label>
+                            <input type="number" id="empMeal" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Housing Allowance (GH₵)</label>
+                            <input type="number" id="empHousing" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Night Shift Premium (%)</label>
+                            <input type="number" id="empNightShift" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Weekend Bonus (GH₵/day)</label>
+                            <input type="number" id="empWeekendBonus" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Performance Bonus (GH₵)</label>
+                            <input type="number" id="empPerformanceBonus" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <h3 style="color: var(--ghana-red); margin: 20px 0 15px;">📉 Custom Deductions</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Loan Repayment (GH₵/month)</label>
+                            <input type="number" id="empLoan" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Salary Advance (GH₵)</label>
+                            <input type="number" id="empAdvance" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Tier 3 Pension (GH₵)</label>
+                            <input type="number" id="empTier3" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Other Deductions (GH₵)</label>
+                            <input type="number" id="empOtherDeductions" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="saveEmployeeCompensation()">💾 Save Employee Settings</button>
+                        <button class="btn btn-info" onclick="resetToDefaults()">↺ Reset to Defaults</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📋 Employee Compensation Summary</h2>
+                <div class="table-container">
+                    <table id="compensationTable">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Transport</th>
+                                <th>Meal</th>
+                                <th>Housing</th>
+                                <th>Loan</th>
+                                <th>Advance</th>
+                                <th>Actions</th>
+                            </thead>
+                        <tbody id="compensationTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tax Brackets Tab -->
+        <div id="taxTab" class="tab-content" style="display: none;">
+            <div class="card">
+                <h2>💰 PAYE Tax Brackets (Monthly - Ghana 2024)</h2>
+                <div class="table-container">
+                    <table id="taxBracketTable">
+                        <thead>
+                            <tr>
+                                <th>Income Range (GH₵)</th>
+                                <th>Tax Rate</th>
+                                <th>Formula</th>
+                            </thead>
+                        <tbody id="taxBracketBody"></tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-yellow" onclick="editTaxBrackets()">✏️ Edit Tax Brackets</button>
+                    <button class="btn btn-info" onclick="resetTaxBrackets()">↺ Reset to Default</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📊 Tax Calculator</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Monthly Gross Income (GH₵)</label>
+                        <input type="number" id="taxCalculatorIncome" step="0.01" placeholder="Enter monthly income">
+                    </div>
+                    <div class="form-group">
+                        <label>Calculated PAYE Tax</label>
+                        <input type="text" id="taxCalculatorResult" readonly style="background: #f5f5f5; font-weight: bold;">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="calculateTaxPreview()">Calculate Tax</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <script>
+        // Global variables
+        let employees = [];
+        let compensationSettings = {};
+        let globalSettings = {};
+        let taxBrackets = [];
+
+        // Check authentication
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (isLoggedIn !== 'true') {
+                window.location.href = 'index.html';
+            }
+            document.getElementById('usernameDisplay').textContent = localStorage.getItem('username') || 'Admin';
+        }
+
+        // Navigation
+        function navigateTo(page) {
+            window.location.href = `${page}.html`;
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('username');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Initialize default tax brackets
+        function initializeTaxBrackets() {
+            const defaultBrackets = [
+                { min: 0, max: 490, rate: 0, fixed: 0, description: "Up to GH₵ 490" },
+                { min: 491, max: 1100, rate: 5, fixed: 0, description: "GH₵ 491 - 1,100" },
+                { min: 1101, max: 1600, rate: 10, fixed: 30.5, description: "GH₵ 1,101 - 1,600" },
+                { min: 1601, max: 3500, rate: 17.5, fixed: 80.5, description: "GH₵ 1,601 - 3,500" },
+                { min: 3501, max: 20000, rate: 25, fixed: 413, description: "GH₵ 3,501 - 20,000" },
+                { min: 20001, max: Infinity, rate: 30, fixed: 4538, description: "Above GH₵ 20,000" }
+            ];
+            
+            let stored = localStorage.getItem('taxBrackets');
+            if (stored) {
+                taxBrackets = JSON.parse(stored);
+            } else {
+                taxBrackets = defaultBrackets;
+                localStorage.setItem('taxBrackets', JSON.stringify(taxBrackets));
+            }
+            renderTaxBrackets();
+        }
+
+        // Render tax brackets table
+        function renderTaxBrackets() {
+            const tbody = document.getElementById('taxBracketBody');
+            tbody.innerHTML = taxBrackets.map(bracket => `
+                <tr>
+                    <td>${bracket.min === 0 ? '0' : bracket.min} - ${bracket.max === Infinity ? 'Above' : bracket.max}</td>
+                    <td>${bracket.rate}%</td>
+                    <td>${bracket.fixed > 0 ? `GH₵ ${bracket.fixed} + ${bracket.rate}% of excess over ${bracket.min}` : `${bracket.rate}% of amount`}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Calculate PAYE tax
+        function calculatePAYE(monthlyIncome) {
+            for (const bracket of taxBrackets) {
+                if (monthlyIncome <= bracket.max) {
+                    if (bracket.min === 0) {
+                        return monthlyIncome * (bracket.rate / 100);
+                    }
+                    return bracket.fixed + (monthlyIncome - bracket.min) * (bracket.rate / 100);
+                }
+            }
+            return 0;
+        }
+
+        // Load global settings
+        function loadGlobalSettings() {
+            const saved = localStorage.getItem('globalPayrollSettings');
+            if (saved) {
+                globalSettings = JSON.parse(saved);
+            } else {
+                globalSettings = {
+                    ssnitRate: 5.5,
+                    ssnitEmployerRate: 13,
+                    nhisRate: 2.5,
+                    nightShiftRate: 20,
+                    overtimeRate: 1.5,
+                    weekendBonus: 50,
+                    holidayRate: 2,
+                    defaultTransport: 100,
+                    defaultMeal: 150,
+                    defaultHousing: 200,
+                    default13thMonth: 100
+                };
+            }
+            
+            document.getElementById('globalSSNITRate').value = globalSettings.ssnitRate;
+            document.getElementById('globalSSNITEmployerRate').value = globalSettings.ssnitEmployerRate;
+            document.getElementById('globalNHISRate').value = globalSettings.nhisRate;
+            document.getElementById('globalNightShiftRate').value = globalSettings.nightShiftRate;
+            document.getElementById('globalOvertimeRate').value = globalSettings.overtimeRate;
+            document.getElementById('globalWeekendBonus').value = globalSettings.weekendBonus;
+            document.getElementById('globalHolidayRate').value = globalSettings.holidayRate;
+            document.getElementById('defaultTransport').value = globalSettings.defaultTransport;
+            document.getElementById('defaultMeal').value = globalSettings.defaultMeal;
+            document.getElementById('defaultHousing').value = globalSettings.defaultHousing;
+            document.getElementById('default13thMonth').value = globalSettings.default13thMonth;
+        }
+
+        // Save global settings
+        function saveGlobalSettings() {
+            globalSettings = {
+                ssnitRate: parseFloat(document.getElementById('globalSSNITRate').value),
+                ssnitEmployerRate: parseFloat(document.getElementById('globalSSNITEmployerRate').value),
+                nhisRate: parseFloat(document.getElementById('globalNHISRate').value),
+                nightShiftRate: parseFloat(document.getElementById('globalNightShiftRate').value),
+                overtimeRate: parseFloat(document.getElementById('globalOvertimeRate').value),
+                weekendBonus: parseFloat(document.getElementById('globalWeekendBonus').value),
+                holidayRate: parseFloat(document.getElementById('globalHolidayRate').value),
+                defaultTransport: parseFloat(document.getElementById('defaultTransport').value),
+                defaultMeal: parseFloat(document.getElementById('defaultMeal').value),
+                defaultHousing: parseFloat(document.getElementById('defaultHousing').value),
+                default13thMonth: parseFloat(document.getElementById('default13thMonth').value)
+            };
+            
+            localStorage.setItem('globalPayrollSettings', JSON.stringify(globalSettings));
+            showAlert('Global settings saved successfully!', 'success');
+            logActivity('Updated global deduction and allowance settings');
+            updateStats();
+        }
+
+        // Save default allowances
+        function saveDefaultAllowances() {
+            globalSettings.defaultTransport = parseFloat(document.getElementById('defaultTransport').value);
+            globalSettings.defaultMeal = parseFloat(document.getElementById('defaultMeal').value);
+            globalSettings.defaultHousing = parseFloat(document.getElementById('defaultHousing').value);
+            globalSettings.default13thMonth = parseFloat(document.getElementById('default13thMonth').value);
+            
+            localStorage.setItem('globalPayrollSettings', JSON.stringify(globalSettings));
+            showAlert('Default allowances saved successfully!', 'success');
+        }
+
+        // Load employee compensation settings
+        function loadEmployeeCompensation() {
+            let compSettings = localStorage.getItem('employeeCompensation');
+            if (compSettings) {
+                compensationSettings = JSON.parse(compSettings);
+            } else {
+                compensationSettings = {};
+            }
+        }
+
+        // Save employee compensation
+        function saveEmployeeCompensation() {
+            const empId = document.getElementById('employeeSelect').value;
+            if (!empId) return;
+            
+            compensationSettings[empId] = {
+                transport: parseFloat(document.getElementById('empTransport').value) || globalSettings.defaultTransport,
+                meal: parseFloat(document.getElementById('empMeal').value) || globalSettings.defaultMeal,
+                housing: parseFloat(document.getElementById('empHousing').value) || globalSettings.defaultHousing,
+                nightShiftRate: parseFloat(document.getElementById('empNightShift').value) || globalSettings.nightShiftRate,
+                weekendBonus: parseFloat(document.getElementById('empWeekendBonus').value) || globalSettings.weekendBonus,
+                performanceBonus: parseFloat(document.getElementById('empPerformanceBonus').value) || 0,
+                loanRepayment: parseFloat(document.getElementById('empLoan').value) || 0,
+                salaryAdvance: parseFloat(document.getElementById('empAdvance').value) || 0,
+                tier3Pension: parseFloat(document.getElementById('empTier3').value) || 0,
+                otherDeductions: parseFloat(document.getElementById('empOtherDeductions').value) || 0
+            };
+            
+            localStorage.setItem('employeeCompensation', JSON.stringify(compensationSettings));
+            showAlert('Employee compensation settings saved!', 'success');
+            logActivity(`Updated compensation settings for employee`);
+            renderCompensationTable();
+            updateStats();
+        }
+
+        // Load employee data into form
+        function loadEmployeeCompensation() {
+            const empId = document.getElementById('employeeSelect').value;
+            if (!empId) {
+                document.getElementById('employeeCompForm').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('employeeCompForm').style.display = 'block';
+            const empComp = compensationSettings[empId] || {};
+            
+            document.getElementById('empTransport').value = empComp.transport || globalSettings.defaultTransport;
+            document.getElementById('empMeal').value = empComp.meal || globalSettings.defaultMeal;
+            document.getElementById('empHousing').value = empComp.housing || globalSettings.defaultHousing;
+            document.getElementById('empNightShift').value = empComp.nightShiftRate || globalSettings.nightShiftRate;
+            document.getElementById('empWeekendBonus').value = empComp.weekendBonus || globalSettings.weekendBonus;
+            document.getElementById('empPerformanceBonus').value = empComp.performanceBonus || 0;
+            document.getElementById('empLoan').value = empComp.loanRepayment || 0;
+            document.getElementById('empAdvance').value = empComp.salaryAdvance || 0;
+            document.getElementById('empTier3').value = empComp.tier3Pension || 0;
+            document.getElementById('empOtherDeductions').value = empComp.otherDeductions || 0;
+        }
+
+        // Reset employee to default settings
+        function resetToDefaults() {
+            const empId = document.getElementById('employeeSelect').value;
+            if (!empId) return;
+            
+            if (confirm('Reset this employee to default allowance settings?')) {
+                delete compensationSettings[empId];
+                localStorage.setItem('employeeCompensation', JSON.stringify(compensationSettings));
+                loadEmployeeCompensation();
+                renderCompensationTable();
+                showAlert('Employee reset to default settings', 'success');
+            }
+        }
+
+        // Render compensation table
+        function renderCompensationTable() {
+            const tbody = document.getElementById('compensationTableBody');
+            
+            const activeEmployees = employees.filter(e => e.status === 'active');
+            if (activeEmployees.length === 0) {
+                tbody.innerHTML = '志愿服务<td colspan="7" style="text-align:center">No employees</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = activeEmployees.map(emp => {
+                const comp = compensationSettings[emp.id] || {};
+                return `
+                    <tr>
+                        <td><strong>${emp.name}</strong><br><small>${emp.position}</small></td>
+                        <td>GH₵ ${(comp.transport || globalSettings.defaultTransport).toFixed(2)}</td>
+                        <td>GH₵ ${(comp.meal || globalSettings.defaultMeal).toFixed(2)}</td>
+                        <td>GH₵ ${(comp.housing || globalSettings.defaultHousing).toFixed(2)}</td>
+                        <td>GH₵ ${(comp.loanRepayment || 0).toFixed(2)}</td>
+                        <td>GH₵ ${(comp.salaryAdvance || 0).toFixed(2)}</td>
+                        <td>
+                            <button class="btn" style="background:#fcd116; color:#006b3f; padding:5px 10px;" onclick="selectEmployee('${emp.id}')">Edit</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Select employee from table
+        function selectEmployee(empId) {
+            document.getElementById('employeeSelect').value = empId;
+            loadEmployeeCompensation();
+            switchTab('employee');
+        }
+
+        // Update employee dropdown
+        function updateEmployeeDropdown() {
+            const select = document.getElementById('employeeSelect');
+            select.innerHTML = '<option value="">Choose employee...</option>';
+            
+            employees.filter(e => e.status === 'active').forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.id;
+                option.textContent = `${emp.name} (${emp.position})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Update stats
+        function updateStats() {
+            const payrollRecords = JSON.parse(localStorage.getItem('payroll') || '[]');
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const currentPayroll = payrollRecords.filter(p => p.month === currentMonth);
+            
+            const totalDeductions = currentPayroll.reduce((sum, p) => sum + (p.totalDeductions || 0), 0);
+            const totalAllowances = currentPayroll.reduce((sum, p) => sum + (p.totalAllowances || 0), 0);
+            const totalTax = currentPayroll.reduce((sum, p) => sum + (p.deductions?.payeTax || 0), 0);
+            const totalSSNIT = currentPayroll.reduce((sum, p) => sum + (p.deductions?.ssnit || 0), 0);
+            
+            document.getElementById('totalDeductions').textContent = `GH₵ ${totalDeductions.toFixed(2)}`;
+            document.getElementById('totalAllowances').textContent = `GH₵ ${totalAllowances.toFixed(2)}`;
+            document.getElementById('totalTaxCollected').textContent = `GH₵ ${totalTax.toFixed(2)}`;
+            document.getElementById('totalSSNIT').textContent = `GH₵ ${totalSSNIT.toFixed(2)}`;
+        }
+
+        // Calculate tax preview
+        function calculateTaxPreview() {
+            const income = parseFloat(document.getElementById('taxCalculatorIncome').value);
+            if (isNaN(income)) {
+                showAlert('Please enter a valid income amount', 'error');
+                return;
+            }
+            
+            const tax = calculatePAYE(income);
+            document.getElementById('taxCalculatorResult').value = `GH₵ ${tax.toFixed(2)} (${((tax / income) * 100).toFixed(1)}%)`;
+        }
+
+        // Edit tax brackets
+        function editTaxBrackets() {
+            let newBrackets = prompt('Enter tax brackets as JSON (advanced users only):', JSON.stringify(taxBrackets, null, 2));
+            if (newBrackets) {
+                try {
+                    taxBrackets = JSON.parse(newBrackets);
+                    localStorage.setItem('taxBrackets', JSON.stringify(taxBrackets));
+                    renderTaxBrackets();
+                    showAlert('Tax brackets updated successfully!', 'success');
+                    logActivity('Updated tax brackets');
+                } catch (e) {
+                    showAlert('Invalid JSON format', 'error');
+                }
+            }
+        }
+
+        // Reset tax brackets
+        function resetTaxBrackets() {
+            if (confirm('Reset tax brackets to default Ghana 2024 rates?')) {
+                initializeTaxBrackets();
+                showAlert('Tax brackets reset to default', 'success');
+                logActivity('Reset tax brackets to default');
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tab) {
+            document.getElementById('globalTab').style.display = 'none';
+            document.getElementById('employeeTab').style.display = 'none';
+            document.getElementById('taxTab').style.display = 'none';
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            
+            if (tab === 'global') {
+                document.getElementById('globalTab').style.display = 'block';
+                document.querySelector('.tab').classList.add('active');
+            } else if (tab === 'employee') {
+                document.getElementById('employeeTab').style.display = 'block';
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                renderCompensationTable();
+            } else if (tab === 'tax') {
+                document.getElementById('taxTab').style.display = 'block';
+                document.querySelectorAll('.tab')[2].classList.add('active');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert alert-${type} show`;
+            setTimeout(() => alert.classList.remove('show'), 3000);
+        }
+
+        function logActivity(message) {
+            let activities = JSON.parse(localStorage.getItem('activityLogs') || '[]');
+            activities.unshift({
+                message: message,
+                time: new Date().toLocaleString()
+            });
+            if (activities.length > 50) activities = activities.slice(0, 50);
+            localStorage.setItem('activityLogs', JSON.stringify(activities));
+        }
+
+        // Initialize
+        function init() {
+            checkAuth();
+            employees = JSON.parse(localStorage.getItem('employees') || '[]');
+            loadGlobalSettings();
+            initializeTaxBrackets();
+            loadEmployeeCompensation();
+            updateEmployeeDropdown();
+            updateStats();
+        }
+
+        init();
+
+        // Make functions global
+        window.navigateTo = navigateTo;
+        window.logout = logout;
+        window.switchTab = switchTab;
+        window.saveGlobalSettings = saveGlobalSettings;
+        window.saveDefaultAllowances = saveDefaultAllowances;
+        window.loadEmployeeCompensation = loadEmployeeCompensation;
+        window.saveEmployeeCompensation = saveEmployeeCompensation;
+        window.resetToDefaults = resetToDefaults;
+        window.calculateTaxPreview = calculateTaxPreview;
+        window.editTaxBrackets = editTaxBrackets;
+        window.resetTaxBrackets = resetTaxBrackets;
+        window.selectEmployee = selectEmployee;
+    </script>
+</body>
+</html>

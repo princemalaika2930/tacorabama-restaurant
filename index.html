@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Payroll System - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #006b3f 0%, #fcd116 50%, #c60c30 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: "🍽️";
+            font-size: 300px;
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            opacity: 0.1;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        body::after {
+            content: "🇬🇭";
+            font-size: 250px;
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            opacity: 0.1;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #006b3f;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .restaurant-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .user-type-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: #f0f2f5;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .user-type-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .user-type-tab.active {
+            background: #006b3f;
+            color: white;
+        }
+
+        .user-type-tab:not(.active):hover {
+            background: #e0e0e0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #fcd116;
+            box-shadow: 0 0 0 3px rgba(252, 209, 22, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #006b3f;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background: #004d2e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 107, 63, 0.3);
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c60c30;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+            border-left: 4px solid #c60c30;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .info-text {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        .demo-credentials {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.85em;
+            text-align: center;
+        }
+
+        .demo-credentials code {
+            background: #e0e0e0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #006b3f;
+            font-weight: bold;
+        }
+
+        .debug-info {
+            display: none;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-size: 0.75em;
+            font-family: monospace;
+            text-align: left;
+            max-height: 200px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="restaurant-icon">🍽️</div>
+            <h1>Restaurant Payroll System</h1>
+            <p class="subtitle" style="color: #666;">Tamale - Ghana</p>
+        </div>
+
+        <div class="user-type-tabs">
+            <div class="user-type-tab active" onclick="switchUserType('admin')">👑 Admin Login</div>
+            <div class="user-type-tab" onclick="switchUserType('employee')">👥 Employee Login</div>
+        </div>
+
+        <form id="loginForm">
+            <!-- Admin Login Fields -->
+            <div id="adminFields">
+                <div class="form-group">
+                    <label for="adminUsername">👤 Username</label>
+                    <input type="text" id="adminUsername" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">🔒 Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter password">
+                </div>
+            </div>
+
+            <!-- Employee Login Fields -->
+            <div id="employeeFields" style="display: none;">
+                <div class="form-group">
+                    <label for="employeeEmail">📧 Email Address</label>
+                    <input type="email" id="employeeEmail" placeholder="Enter your email address">
+                </div>
+                <div class="form-group">
+                    <label for="employeePassword">🔒 Password</label>
+                    <input type="password" id="employeePassword" placeholder="Enter your password">
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">Login →</button>
+
+            <div class="error-message" id="errorMessage">
+                Invalid credentials. Please try again.
+            </div>
+
+            <div class="demo-credentials" id="demoCredentials">
+                <strong>🔐 Demo Admin Credentials:</strong><br>
+                Username: <code>admin</code> | Password: <code>admin</code>
+            </div>
+
+            <div class="info-text">
+                <strong>🇬🇭 Restaurant Payroll System</strong><br>
+                Secure access for Admin and Employees
+            </div>
+            
+            <div class="debug-info" id="debugInfo"></div>
+        </form>
+    </div>
+
+    <script>
+        let userType = 'admin';
+
+        // ========== INITIALIZE EMPLOYEE DATA ==========
+        function initializeEmployeeData() {
+            let employees = JSON.parse(localStorage.getItem('employees') || '[]');
+            
+            // If no employees exist, create default ones with emails
+            if (employees.length === 0) {
+                employees = [
+                    { id: 'EMP001', name: 'John Mensah', email: 'john@restaurant.com', position: 'Chef', hourlyRate: 25, hoursWorked: 0, tipsCollected: 0, status: 'active', phone: '+233 20 123 4567', password: 'emp123' },
+                    { id: 'EMP002', name: 'Mary Adjei', email: 'mary@restaurant.com', position: 'Server', hourlyRate: 15, hoursWorked: 0, tipsCollected: 0, status: 'active', phone: '+233 20 123 4568', password: 'emp123' },
+                    { id: 'EMP003', name: 'Kwame Asare', email: 'kwame@restaurant.com', position: 'Bartender', hourlyRate: 18, hoursWorked: 0, tipsCollected: 0, status: 'active', phone: '+233 20 123 4569', password: 'emp123' },
+                    { id: 'EMP004', name: 'Ama Serwaa', email: 'ama@restaurant.com', position: 'Cook', hourlyRate: 20, hoursWorked: 0, tipsCollected: 0, status: 'active', phone: '+233 20 123 4570', password: 'emp123' },
+                    { id: 'EMP005', name: 'Kofi Annan', email: 'kofi@restaurant.com', position: 'Cleaner', hourlyRate: 12, hoursWorked: 0, tipsCollected: 0, status: 'active', phone: '+233 20 123 4571', password: 'emp123' }
+                ];
+                localStorage.setItem('employees', JSON.stringify(employees));
+                console.log('✅ Default employees initialized with emails!');
+            } else {
+                // Ensure all existing employees have emails and passwords
+                let updated = false;
+                employees = employees.map(emp => {
+                    if (!emp.email || emp.email === '') {
+                        emp.email = emp.name.toLowerCase().replace(/\s+/g, '.') + '@restaurant.com';
+                        updated = true;
+                    }
+                    if (!emp.password) {
+                        emp.password = 'emp123';
+                        updated = true;
+                    }
+                    return emp;
+                });
+                if (updated) {
+                    localStorage.setItem('employees', JSON.stringify(employees));
+                    console.log('✅ Updated existing employees with missing emails/passwords');
+                }
+            }
+            
+            return employees;
+        }
+
+        function switchUserType(type) {
+            userType = type;
+            document.querySelectorAll('.user-type-tab').forEach(tab => tab.classList.remove('active'));
+            
+            if (type === 'admin') {
+                document.querySelector('.user-type-tab:first-child').classList.add('active');
+                document.getElementById('adminFields').style.display = 'block';
+                document.getElementById('employeeFields').style.display = 'none';
+                document.getElementById('demoCredentials').innerHTML = `
+                    <strong>🔐 Demo Admin Credentials:</strong><br>
+                    Username: <code>admin</code> | Password: <code>admin</code>
+                `;
+                document.getElementById('loginBtn').textContent = 'Login as Admin →';
+            } else {
+                document.querySelector('.user-type-tab:last-child').classList.add('active');
+                document.getElementById('adminFields').style.display = 'none';
+                document.getElementById('employeeFields').style.display = 'block';
+                
+                // Get employees for demo credentials
+                const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+                let demoEmails = '';
+                if (employees.length > 0) {
+                    demoEmails = employees.slice(0, 3).map(emp => 
+                        `<code>${emp.email}</code>`
+                    ).join(' | ');
+                } else {
+                    demoEmails = '<code>john@restaurant.com</code> | <code>mary@restaurant.com</code> | <code>kwame@restaurant.com</code>';
+                }
+                
+                document.getElementById('demoCredentials').innerHTML = `
+                    <strong>🔐 Demo Employee Credentials:</strong><br>
+                    Email: ${demoEmails}<br>
+                    Password: <code>emp123</code>
+                `;
+                document.getElementById('loginBtn').textContent = 'Login as Employee →';
+            }
+        }
+
+        // Helper function to show debug info
+        function showDebug(message) {
+            const debugDiv = document.getElementById('debugInfo');
+            debugDiv.style.display = 'block';
+            debugDiv.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+        }
+
+        // Get login form
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Admin credentials
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'admin';
+
+        // Handle form submission
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            showDebug('Login attempt started...');
+            
+            if (userType === 'admin') {
+                // Admin login
+                const username = document.getElementById('adminUsername').value;
+                const password = document.getElementById('adminPassword').value;
+                
+                showDebug(`Admin login: username=${username}`);
+                
+                if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                    showDebug('Admin login successful!');
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userType', 'admin');
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('loginTime', new Date().toISOString());
+                    
+                    const btn = document.querySelector('.login-btn');
+                    btn.textContent = '✓ Logging in...';
+                    btn.style.background = '#fcd116';
+                    btn.style.color = '#006b3f';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 800);
+                } else {
+                    showDebug('Admin login failed!');
+                    errorMessage.classList.add('show');
+                    document.getElementById('adminPassword').value = '';
+                    document.getElementById('adminPassword').focus();
+                }
+            } else {
+                // Employee login
+                const email = document.getElementById('employeeEmail').value.trim().toLowerCase();
+                const password = document.getElementById('employeePassword').value;
+                
+                showDebug(`Employee login: email=${email}`);
+                
+                // Get employees from storage (ensuring they exist)
+                let employees = initializeEmployeeData();
+                showDebug(`Found ${employees.length} employees in storage`);
+                
+                // Find employee by email
+                const employee = employees.find(e => e.email && e.email.toLowerCase() === email);
+                
+                if (employee) {
+                    showDebug(`Employee found: ${employee.name}`);
+                    showDebug(`Stored password: ${employee.password}, Entered password: ${password}`);
+                    
+                    if (employee.password === password) {
+                        showDebug('Password matches! Login successful!');
+                        
+                        // Store employee session
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('userType', 'employee');
+                        localStorage.setItem('employeeId', employee.id);
+                        localStorage.setItem('employeeName', employee.name);
+                        localStorage.setItem('employeeEmail', employee.email);
+                        localStorage.setItem('loginTime', new Date().toISOString());
+                        
+                        const btn = document.querySelector('.login-btn');
+                        btn.textContent = '✓ Logging in...';
+                        btn.style.background = '#fcd116';
+                        btn.style.color = '#006b3f';
+                        
+                        setTimeout(() => {
+                            window.location.href = 'employee_portal.html';
+                        }, 800);
+                    } else {
+                        showDebug(`Password mismatch! Expected: ${employee.password}, Got: ${password}`);
+                        errorMessage.classList.add('show');
+                        document.getElementById('employeePassword').value = '';
+                        document.getElementById('employeeEmail').focus();
+                    }
+                } else {
+                    showDebug(`Employee not found with email: ${email}`);
+                    showDebug(`Available emails: ${employees.map(e => e.email).join(', ')}`);
+                    errorMessage.classList.add('show');
+                    document.getElementById('employeePassword').value = '';
+                    document.getElementById('employeeEmail').focus();
+                }
+            }
+        });
+        
+        // Clear error when typing
+        document.getElementById('adminUsername').addEventListener('input', () => errorMessage.classList.remove('show'));
+        document.getElementById('adminPassword').addEventListener('input', () => errorMessage.classList.remove('show'));
+        document.getElementById('employeeEmail').addEventListener('input', () => errorMessage.classList.remove('show'));
+        document.getElementById('employeePassword').addEventListener('input', () => errorMessage.classList.remove('show'));
+        
+        // Check if already logged in
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            const userType = localStorage.getItem('userType');
+            if (userType === 'admin') {
+                window.location.href = 'dashboard.html';
+            } else if (userType === 'employee') {
+                window.location.href = 'employee_portal.html';
+            }
+        }
+        
+        // Set default admin username for convenience
+        document.getElementById('adminUsername').value = 'admin';
+        
+        // Initialize employee data on page load
+        const employees = initializeEmployeeData();
+        showDebug(`Initial load: ${employees.length} employees found`);
+        if (employees.length > 0) {
+            showDebug(`Employee emails: ${employees.map(e => e.email).join(', ')}`);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - Restaurant Payroll System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --ghana-green: #006b3f;
+            --ghana-yellow: #fcd116;
+            --ghana-red: #c60c30;
+            --dark-bg: #1a1a2e;
+            --card-bg: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --sidebar-bg: #1a1a2e;
+            --sidebar-text: #fff;
+            --hover-bg: #f5f5f5;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        body.dark-mode {
+            --card-bg: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --hover-bg: #3a3a3a;
+            background: #1a1a2e;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--sidebar-bg);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--ghana-yellow);
+        }
+
+        .sidebar-header h2 {
+            color: var(--ghana-yellow);
+            font-size: 1.3em;
+            margin-top: 10px;
+        }
+
+        .restaurant-icon {
+            font-size: 50px;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 12px 25px;
+            margin: 5px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--sidebar-text);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: var(--ghana-green);
+            color: white;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .top-bar {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .page-title h1 {
+            color: var(--ghana-green);
+            font-size: 1.5em;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logout-btn {
+            background: var(--ghana-red);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .theme-toggle {
+            background: var(--ghana-yellow);
+            color: var(--ghana-green);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .live-clock {
+            background: var(--ghana-green);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-family: monospace;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, var(--ghana-green), #004d2e);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box .number {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .attendance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            color: var(--ghana-green);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--ghana-yellow);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .form-group input[readonly] {
+            background: #f0f0f0;
+            cursor: not-allowed;
+        }
+
+        body.dark-mode .form-group input[readonly] {
+            background: #404040;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--ghana-green);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #004d2e;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: var(--ghana-red);
+            color: white;
+        }
+
+        .btn-yellow {
+            background: var(--ghana-yellow);
+            color: var(--ghana-green);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .clock-in-btn {
+            background: #28a745;
+            color: white;
+            font-size: 1.2em;
+            padding: 15px;
+        }
+
+        .clock-out-btn {
+            background: #dc3545;
+            color: white;
+            font-size: 1.2em;
+            padding: 15px;
+        }
+
+        .active-shift {
+            background: #c6f6d5;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        body.dark-mode .active-shift {
+            background: #1a3a1a;
+        }
+
+        .calculated-hours {
+            background: #f0f7f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .calculated-hours .hours {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--ghana-green);
+        }
+
+        .shift-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .shift-morning { background: var(--ghana-yellow); color: var(--ghana-green); }
+        .shift-afternoon { background: #17a2b8; color: white; }
+        .shift-evening { background: #6f42c1; color: white; }
+        .shift-night { background: #343a40; color: white; }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--ghana-green);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar input, .filter-bar select {
+            padding: 8px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+
+        .status-active {
+            background: #c6f6d5;
+            color: #006b3f;
+        }
+
+        .status-completed {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--ghana-green);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 1001;
+        }
+
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 3000;
+            display: none;
+        }
+
+        .alert.show { display: block; }
+        .alert-success { background: #006b3f; color: white; }
+        .alert-error { background: #c60c30; color: white; }
+        .alert-info { background: #17a2b8; color: white; }
+
+        @media (max-width: 768px) {
+            .sidebar { left: -280px; }
+            .main-content { margin-left: 0; }
+            .menu-toggle { display: block; }
+            .sidebar.open { left: 0; }
+            .attendance-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="restaurant-icon">🍽️</div>
+            <h2>Restaurant Payroll</h2>
+            <p style="color: #aaa; font-size: 0.8em;">Tamale, Ghana</p>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item" onclick="navigateTo('dashboard')">📊 Dashboard</div>
+            <div class="nav-item" onclick="navigateTo('employees')">👥 Employees</div>
+            <div class="nav-item active" onclick="navigateTo('attendance')">⏰ Attendance</div>
+            <div class="nav-item" onclick="navigateTo('payroll')">💰 Payroll</div>
+            <div class="nav-item" onclick="navigateTo('deductions')">📉 Deductions & Allowances</div>
+            <div class="nav-item" onclick="navigateTo('reports')">📈 Reports</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>⏰ Attendance Management</h1>
+                <p style="color: var(--text-secondary);">Automatic time tracking - Clock in/out with live time</p>
+            </div>
+            <div class="user-info">
+                <div class="live-clock" id="liveClock"></div>
+                <span>Welcome, <strong id="usernameDisplay">Admin</strong></span>
+                <button class="theme-toggle" onclick="toggleDarkMode()">🌓</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box"><div class="number" id="totalHoursToday">0</div><div class="label">Total Hours Today</div></div>
+            <div class="stat-box"><div class="number" id="totalTipsToday">GH₵ 0</div><div class="label">Total Tips Today</div></div>
+            <div class="stat-box"><div class="number" id="activeEmployeesToday">0</div><div class="label">Active Today</div></div>
+            <div class="stat-box"><div class="number" id="currentlyClockedIn">0</div><div class="label">Currently Clocked In</div></div>
+        </div>
+
+        <div class="attendance-grid">
+            <!-- Clock In/Out Section -->
+            <div class="card">
+                <h2>🕐 Clock In / Out</h2>
+                <div class="form-group">
+                    <label>Select Employee *</label>
+                    <select id="employeeSelect" required>
+                        <option value="">Choose employee...</option>
+                    </select>
+                </div>
+                
+                <div id="activeShiftInfo" style="display: none;" class="active-shift">
+                    <strong>⏰ Currently Clocked In</strong><br>
+                    Clock In Time: <span id="currentClockInTime">--:--</span><br>
+                    <span id="currentRunningTime">0 hrs 0 mins</span>
+                </div>
+                
+                <div id="clockInButtonDiv">
+                    <button class="btn btn-success clock-in-btn" id="clockInBtn" onclick="clockIn()" style="width: 100%;">
+                        🟢 CLOCK IN
+                    </button>
+                </div>
+                
+                <div id="clockOutButtonDiv" style="display: none;">
+                    <button class="btn btn-danger clock-out-btn" id="clockOutBtn" onclick="clockOut()" style="width: 100%;">
+                        🔴 CLOCK OUT
+                    </button>
+                </div>
+                
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Break Hours (Optional)</label>
+                    <input type="number" id="breakHours" min="0" max="4" step="0.5" value="1.0" placeholder="Enter break hours">
+                    <small style="color: var(--text-secondary);">Record unpaid breaks (lunch, rest periods)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tips Collected (GH₵)</label>
+                    <input type="number" id="tipsCollected" min="0" step="0.01" placeholder="0.00">
+                </div>
+                
+                <div class="calculated-hours">
+                    <div>Today's Hours (will be calculated when clocking out)</div>
+                    <div class="hours" id="hoursDisplay">0.0</div>
+                </div>
+            </div>
+
+            <!-- Active Shifts Summary -->
+            <div class="card">
+                <h2>🔄 Active Shifts</h2>
+                <div id="currentShiftSummary">
+                    <p style="text-align:center; color: var(--text-secondary);">No active shifts</p>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-yellow" onclick="viewTodayAttendance()">📅 View Today's Attendance</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance History -->
+        <div class="card">
+            <h2>📋 Attendance History</h2>
+            <div class="filter-bar">
+                <input type="text" id="searchAttendance" placeholder="Search employee..." onkeyup="filterAttendance()">
+                <input type="date" id="filterDate" onchange="filterAttendance()">
+                <select id="filterShift" onchange="filterAttendance()">
+                    <option value="">All Shifts</option>
+                    <option value="Morning">Morning</option>
+                    <option value="Afternoon">Afternoon</option>
+                    <option value="Evening">Evening</option>
+                    <option value="Night">Night</option>
+                </select>
+                <button class="btn btn-info" onclick="exportAttendance()">📊 Export</button>
+            </div>
+            <div class="table-container">
+                <table id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Employee</th>
+                            <th>Clock In</th>
+                            <th>Clock Out</th>
+                            <th>Hours</th>
+                            <th>Shift</th>
+                            <th>Tips</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <script>
+        let employees = [];
+        let attendanceRecords = [];
+        let activeShifts = {}; // Store active shifts by employee ID
+        let runningInterval = null;
+
+        function checkAuth() { 
+            if(localStorage.getItem('isLoggedIn') !== 'true') window.location.href = 'index.html'; 
+            document.getElementById('usernameDisplay').textContent = localStorage.getItem('username') || 'Admin';
+        }
+        
+        function navigateTo(page) { window.location.href = `${page}.html`; }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); }
+        function logout() { if(confirm('Logout?')){ localStorage.clear(); window.location.href='index.html'; } }
+
+        // Live Clock Update
+        function updateLiveClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateString = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            document.getElementById('liveClock').innerHTML = `📅 ${dateString} | ⏰ ${timeString}`;
+        }
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock();
+
+        // Get current time in HH:MM format
+        function getCurrentTime() {
+            const now = new Date();
+            return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        // Get current date
+        function getCurrentDate() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        // Calculate hours between two times
+        function calculateHoursBetween(clockIn, clockOut, breakHours) {
+            if (!clockIn || !clockOut) return 0;
+            const [inH, inM] = clockIn.split(':').map(Number);
+            const [outH, outM] = clockOut.split(':').map(Number);
+            let inMinutes = inH * 60 + inM;
+            let outMinutes = outH * 60 + outM;
+            if (outMinutes < inMinutes) outMinutes += 24 * 60;
+            let totalMinutes = outMinutes - inMinutes;
+            let totalHours = totalMinutes / 60 - (breakHours || 0);
+            return Math.max(0, parseFloat(totalHours.toFixed(2)));
+        }
+
+        // Get shift type based on time
+        function getShiftType(clockIn) {
+            if (!clockIn) return { name: 'Morning', class: 'shift-morning' };
+            const hour = parseInt(clockIn.split(':')[0]);
+            if (hour >= 5 && hour < 12) return { name: 'Morning', class: 'shift-morning' };
+            if (hour >= 12 && hour < 17) return { name: 'Afternoon', class: 'shift-afternoon' };
+            if (hour >= 17 && hour < 22) return { name: 'Evening', class: 'shift-evening' };
+            return { name: 'Night', class: 'shift-night' };
+        }
+
+        // Load all data
+        function loadData() {
+            employees = JSON.parse(localStorage.getItem('employees') || '[]');
+            attendanceRecords = JSON.parse(localStorage.getItem('attendance') || '[]');
+            activeShifts = JSON.parse(localStorage.getItem('activeShifts') || '{}');
+            
+            updateEmployeeSelect();
+            updateStats();
+            renderAttendanceTable();
+            updateActiveShiftsSummary();
+            checkForActiveShiftOnSelect();
+        }
+
+        // Update employee dropdown
+        function updateEmployeeSelect() {
+            const select = document.getElementById('employeeSelect');
+            select.innerHTML = '<option value="">Choose employee...</option>';
+            employees.filter(e => e.status === 'active').forEach(emp => {
+                select.innerHTML += `<option value="${emp.id}">${emp.name} (${emp.position})</option>`;
+            });
+            select.onchange = checkForActiveShiftOnSelect;
+        }
+
+        // Check if selected employee has active shift
+        function checkForActiveShiftOnSelect() {
+            const empId = document.getElementById('employeeSelect').value;
+            if (!empId) {
+                document.getElementById('clockInButtonDiv').style.display = 'block';
+                document.getElementById('clockOutButtonDiv').style.display = 'none';
+                document.getElementById('activeShiftInfo').style.display = 'none';
+                document.getElementById('hoursDisplay').textContent = '0.0';
+                return;
+            }
+            
+            const activeShift = activeShifts[empId];
+            if (activeShift && !activeShift.clockedOut) {
+                // Employee is currently clocked in
+                document.getElementById('clockInButtonDiv').style.display = 'none';
+                document.getElementById('clockOutButtonDiv').style.display = 'block';
+                document.getElementById('activeShiftInfo').style.display = 'block';
+                document.getElementById('currentClockInTime').textContent = activeShift.clockIn;
+                updateRunningTime(activeShift);
+                
+                // Start interval to update running time
+                if (runningInterval) clearInterval(runningInterval);
+                runningInterval = setInterval(() => {
+                    const currentActive = activeShifts[empId];
+                    if (currentActive && !currentActive.clockedOut) {
+                        updateRunningTime(currentActive);
+                    }
+                }, 1000);
+            } else {
+                document.getElementById('clockInButtonDiv').style.display = 'block';
+                document.getElementById('clockOutButtonDiv').style.display = 'none';
+                document.getElementById('activeShiftInfo').style.display = 'none';
+                document.getElementById('hoursDisplay').textContent = '0.0';
+                if (runningInterval) clearInterval(runningInterval);
+            }
+        }
+
+        // Update running time display
+        function updateRunningTime(shift) {
+            const clockInTime = shift.clockIn;
+            const [inH, inM] = clockInTime.split(':').map(Number);
+            const now = new Date();
+            const nowMinutes = now.getHours() * 60 + now.getMinutes();
+            const inMinutes = inH * 60 + inM;
+            let diffMinutes = nowMinutes - inMinutes;
+            if (diffMinutes < 0) diffMinutes += 24 * 60;
+            const hours = Math.floor(diffMinutes / 60);
+            const minutes = diffMinutes % 60;
+            document.getElementById('currentRunningTime').innerHTML = `<strong>Current Duration:</strong> ${hours} hrs ${minutes} mins`;
+            
+            const breakHours = parseFloat(document.getElementById('breakHours').value) || 0;
+            let totalHours = diffMinutes / 60 - breakHours;
+            if (totalHours < 0) totalHours = 0;
+            document.getElementById('hoursDisplay').textContent = totalHours.toFixed(1);
+        }
+
+        // Clock In Function - Automatic time capture
+        function clockIn() {
+            const empId = document.getElementById('employeeSelect').value;
+            if (!empId) {
+                showAlert('Please select an employee first!', 'error');
+                return;
+            }
+            
+            const employee = employees.find(e => e.id === empId);
+            if (!employee) return;
+            
+            // Check if already clocked in today
+            const today = getCurrentDate();
+            const existingRecord = attendanceRecords.find(a => a.empId === empId && a.date === today);
+            if (existingRecord && existingRecord.status === 'active') {
+                showAlert(`${employee.name} is already clocked in today!`, 'error');
+                return;
+            }
+            
+            const currentTime = getCurrentTime();
+            const shift = getShiftType(currentTime);
+            
+            // Create active shift record
+            activeShifts[empId] = {
+                empId: empId,
+                empName: employee.name,
+                clockIn: currentTime,
+                clockedOut: false,
+                date: today
+            };
+            
+            localStorage.setItem('activeShifts', JSON.stringify(activeShifts));
+            
+            showAlert(`✅ ${employee.name} clocked in at ${currentTime}`, 'success');
+            logActivity(`${employee.name} clocked in at ${currentTime}`);
+            
+            checkForActiveShiftOnSelect();
+            updateActiveShiftsSummary();
+            updateStats();
+        }
+
+        // Clock Out Function - Automatic time capture and calculation
+        function clockOut() {
+            const empId = document.getElementById('employeeSelect').value;
+            if (!empId) {
+                showAlert('Please select an employee first!', 'error');
+                return;
+            }
+            
+            const employee = employees.find(e => e.id === empId);
+            if (!employee) return;
+            
+            const activeShift = activeShifts[empId];
+            if (!activeShift || activeShift.clockedOut) {
+                showAlert(`${employee.name} is not clocked in!`, 'error');
+                return;
+            }
+            
+            const clockOutTime = getCurrentTime();
+            const breakHours = parseFloat(document.getElementById('breakHours').value) || 0;
+            const tips = parseFloat(document.getElementById('tipsCollected').value) || 0;
+            const hoursWorked = calculateHoursBetween(activeShift.clockIn, clockOutTime, breakHours);
+            const shift = getShiftType(activeShift.clockIn);
+            
+            // Create attendance record
+            const attendanceRecord = {
+                id: Date.now(),
+                empId: empId,
+                empName: employee.name,
+                date: activeShift.date,
+                clockIn: activeShift.clockIn,
+                clockOut: clockOutTime,
+                breakHours: breakHours,
+                hoursWorked: hoursWorked,
+                shift: shift.name,
+                tips: tips,
+                status: 'completed'
+            };
+            
+            attendanceRecords.push(attendanceRecord);
+            localStorage.setItem('attendance', JSON.stringify(attendanceRecords));
+            
+            // Remove active shift
+            delete activeShifts[empId];
+            localStorage.setItem('activeShifts', JSON.stringify(activeShifts));
+            
+            // Update employee's total hours and tips
+            const employeeIndex = employees.findIndex(e => e.id === empId);
+            if (employeeIndex !== -1) {
+                employees[employeeIndex].hoursWorked = (employees[employeeIndex].hoursWorked || 0) + hoursWorked;
+                employees[employeeIndex].tipsCollected = (employees[employeeIndex].tipsCollected || 0) + tips;
+                localStorage.setItem('employees', JSON.stringify(employees));
+            }
+            
+            showAlert(`✅ ${employee.name} clocked out at ${clockOutTime}\nHours worked: ${hoursWorked.toFixed(1)} hrs\nTips: GH₵ ${tips.toFixed(2)}`, 'success');
+            logActivity(`${employee.name} clocked out at ${clockOutTime} - Worked ${hoursWorked.toFixed(1)} hours`);
+            
+            // Reset form
+            document.getElementById('breakHours').value = '1.0';
+            document.getElementById('tipsCollected').value = '';
+            document.getElementById('hoursDisplay').textContent = '0.0';
+            
+            if (runningInterval) clearInterval(runningInterval);
+            checkForActiveShiftOnSelect();
+            updateActiveShiftsSummary();
+            renderAttendanceTable();
+            updateStats();
+        }
+
+        // Update active shifts summary
+        function updateActiveShiftsSummary() {
+            const activeShiftsList = Object.values(activeShifts).filter(s => !s.clockedOut);
+            const summaryDiv = document.getElementById('currentShiftSummary');
+            
+            if (activeShiftsList.length === 0) {
+                summaryDiv.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No active shifts</p>';
+                return;
+            }
+            
+            let html = '';
+            activeShiftsList.forEach(shift => {
+                const [inH, inM] = shift.clockIn.split(':').map(Number);
+                const now = new Date();
+                const nowMinutes = now.getHours() * 60 + now.getMinutes();
+                const inMinutes = inH * 60 + inM;
+                let diffMinutes = nowMinutes - inMinutes;
+                if (diffMinutes < 0) diffMinutes += 24 * 60;
+                const hours = Math.floor(diffMinutes / 60);
+                const minutes = diffMinutes % 60;
+                html += `
+                    <div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color);">
+                        <div>
+                            <strong>${shift.empName}</strong><br>
+                            <small>Clocked in: ${shift.clockIn}</small>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="status-badge status-active">Active</span><br>
+                            <small>${hours}h ${minutes}m</small>
+                        </div>
+                    </div>
+                `;
+            });
+            summaryDiv.innerHTML = html;
+        }
+
+        // Update statistics
+        function updateStats() {
+            const today = getCurrentDate();
+            const todayRecords = attendanceRecords.filter(a => a.date === today);
+            const activeShiftsCount = Object.values(activeShifts).filter(s => !s.clockedOut).length;
+            
+            const totalHours = todayRecords.reduce((s, a) => s + a.hoursWorked, 0);
+            const totalTips = todayRecords.reduce((s, a) => s + (a.tips || 0), 0);
+            const activeEmployees = new Set(todayRecords.map(a => a.empId)).size;
+            
+            document.getElementById('totalHoursToday').textContent = totalHours.toFixed(1);
+            document.getElementById('totalTipsToday').textContent = `GH₵ ${totalTips.toFixed(2)}`;
+            document.getElementById('activeEmployeesToday').textContent = activeEmployees;
+            document.getElementById('currentlyClockedIn').textContent = activeShiftsCount;
+        }
+
+        // Render attendance table
+        function renderAttendanceTable() {
+            const tbody = document.getElementById('attendanceTableBody');
+            if (attendanceRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">No attendance records</td></tr>';
+                return;
+            }
+            const sorted = [...attendanceRecords].sort((a, b) => b.date.localeCompare(a.date));
+            tbody.innerHTML = sorted.map(r => {
+                const shift = getShiftType(r.clockIn);
+                return `
+                    <tr>
+                        <td>${r.date}</td>
+                        <td><strong>${r.empName}</strong></td>
+                        <td>${r.clockIn}</td>
+                        <td>${r.clockOut}</td>
+                        <td>${r.hoursWorked.toFixed(1)}h</td>
+                        <td><span class="shift-badge ${shift.class}">${r.shift || shift.name}</span></td>
+                        <td>GH₵ ${(r.tips || 0).toFixed(2)}</td>
+                        <td><span class="status-badge status-completed">Completed</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Filter attendance
+        function filterAttendance() {
+            let filtered = [...attendanceRecords];
+            const search = document.getElementById('searchAttendance').value.toLowerCase();
+            const date = document.getElementById('filterDate').value;
+            const shift = document.getElementById('filterShift').value;
+            
+            if (search) filtered = filtered.filter(a => a.empName.toLowerCase().includes(search));
+            if (date) filtered = filtered.filter(a => a.date === date);
+            if (shift) filtered = filtered.filter(a => a.shift === shift);
+            
+            const tbody = document.getElementById('attendanceTableBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">No records found</td></tr>';
+                return;
+            }
+            const sorted = filtered.sort((a, b) => b.date.localeCompare(a.date));
+            tbody.innerHTML = sorted.map(r => {
+                const shiftClass = getShiftType(r.clockIn);
+                return `
+                    <tr>
+                        <td>${r.date}</td>
+                        <td><strong>${r.empName}</strong></td>
+                        <td>${r.clockIn}</td>
+                        <td>${r.clockOut}</td>
+                        <td>${r.hoursWorked.toFixed(1)}h</td>
+                        <td><span class="shift-badge ${shiftClass.class}">${r.shift || shiftClass.name}</span></td>
+                        <td>GH₵ ${(r.tips || 0).toFixed(2)}</td>
+                        <td><span class="status-badge status-completed">Completed</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function viewTodayAttendance() {
+            document.getElementById('filterDate').value = getCurrentDate();
+            filterAttendance();
+        }
+
+        function exportAttendance() {
+            const data = {
+                exportDate: new Date().toISOString(),
+                location: 'Tamale, Ghana',
+                attendanceRecords: attendanceRecords
+            };
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+            a.download = `attendance_${getCurrentDate()}.json`;
+            a.click();
+            showAlert('Attendance exported!', 'success');
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert alert-${type} show`;
+            setTimeout(() => alert.classList.remove('show'), 3000);
+        }
+
+        function logActivity(message) {
+            let activities = JSON.parse(localStorage.getItem('activityLogs') || '[]');
+            activities.unshift({ message: message, time: new Date().toLocaleString() });
+            if (activities.length > 50) activities = activities.slice(0, 50);
+            localStorage.setItem('activityLogs', JSON.stringify(activities));
+        }
+
+        // Initialize
+        if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
+        checkAuth();
+        loadData();
+
+        window.navigateTo = navigateTo;
+        window.toggleSidebar = toggleSidebar;
+        window.toggleDarkMode = toggleDarkMode;
+        window.logout = logout;
+        window.clockIn = clockIn;
+        window.clockOut = clockOut;
+        window.viewTodayAttendance = viewTodayAttendance;
+        window.filterAttendance = filterAttendance;
+        window.exportAttendance = exportAttendance;
+    </script>
+</body>
+</html>

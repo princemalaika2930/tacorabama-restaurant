@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll - Restaurant Payroll System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --ghana-green: #006b3f;
+            --ghana-yellow: #fcd116;
+            --ghana-red: #c60c30;
+            --dark-bg: #1a1a2e;
+            --card-bg: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --sidebar-bg: #1a1a2e;
+            --sidebar-text: #fff;
+            --hover-bg: #f5f5f5;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        body.dark-mode {
+            --card-bg: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --hover-bg: #3a3a3a;
+            background: #1a1a2e;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--sidebar-bg);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--ghana-yellow);
+        }
+
+        .sidebar-header h2 {
+            color: var(--ghana-yellow);
+            font-size: 1.3em;
+            margin-top: 10px;
+        }
+
+        .restaurant-icon {
+            font-size: 50px;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 12px 25px;
+            margin: 5px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--sidebar-text);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: var(--ghana-green);
+            color: white;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .top-bar {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .page-title h1 {
+            color: var(--ghana-green);
+            font-size: 1.5em;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logout-btn {
+            background: var(--ghana-red);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .theme-toggle {
+            background: var(--ghana-yellow);
+            color: var(--ghana-green);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--ghana-green), #004d2e);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .payroll-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .section-header h2 {
+            color: var(--ghana-green);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--ghana-green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #004d2e;
+            transform: translateY(-2px);
+        }
+
+        .btn-yellow {
+            background: var(--ghana-yellow);
+            color: var(--ghana-green);
+        }
+
+        .btn-yellow:hover {
+            background: #e5bc0e;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar input, .filter-bar select {
+            padding: 8px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--ghana-green);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        tr:hover td {
+            background: var(--hover-bg);
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            display: inline-block;
+        }
+
+        .status-paid {
+            background: #c6f6d5;
+            color: #006b3f;
+        }
+
+        .status-pending {
+            background: #fed7d7;
+            color: #c60c30;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            color: var(--ghana-green);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--ghana-yellow);
+            padding-bottom: 10px;
+        }
+
+        .payslip {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        body.dark-mode .payslip {
+            background: #3a3a3a;
+        }
+
+        .payslip-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--ghana-green);
+            padding-bottom: 10px;
+        }
+
+        .payslip-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .payslip-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            margin-top: 10px;
+            border-top: 2px solid var(--ghana-green);
+            font-weight: bold;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--ghana-green);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 1001;
+        }
+
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 3000;
+            display: none;
+        }
+
+        .alert.show { display: block; }
+        .alert-success { background: #006b3f; color: white; }
+        .alert-error { background: #c60c30; color: white; }
+        .alert-info { background: #17a2b8; color: white; }
+
+        @media (max-width: 768px) {
+            .sidebar { left: -280px; }
+            .main-content { margin-left: 0; }
+            .menu-toggle { display: block; }
+            .sidebar.open { left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="restaurant-icon">🍽️</div>
+            <h2>Restaurant Payroll</h2>
+            <p style="color: #aaa; font-size: 0.8em;">Tamale, Ghana</p>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item" onclick="navigateTo('dashboard')">📊 Dashboard</div>
+            <div class="nav-item" onclick="navigateTo('employees')">👥 Employees</div>
+            <div class="nav-item" onclick="navigateTo('attendance')">⏰ Attendance</div>
+            <div class="nav-item active" onclick="navigateTo('payroll')">💰 Payroll</div>
+            <div class="nav-item" onclick="navigateTo('deductions')">📉 Deductions & Allowances</div>
+            <div class="nav-item" onclick="navigateTo('reports')">📈 Reports</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>💰 Payroll Management</h1>
+                <p style="color: var(--text-secondary);">Process payroll, view history, and generate payslips</p>
+            </div>
+            <div class="user-info">
+                <span>Welcome, <strong id="usernameDisplay">Admin</strong></span>
+                <button class="theme-toggle" onclick="toggleDarkMode()">🌓</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card" onclick="showPayrollSummary()"><div class="number" id="totalPayroll">GH₵ 0</div><div class="label">Total Payroll</div></div>
+            <div class="stat-card" onclick="showPayrollSummary()"><div class="number" id="totalTips">GH₵ 0</div><div class="label">Total Tips</div></div>
+            <div class="stat-card"><div class="number" id="totalEmployees">0</div><div class="label">Employees</div></div>
+            <div class="stat-card" onclick="showPendingPayments()"><div class="number" id="pendingCount">0</div><div class="label">Pending Payments</div></div>
+        </div>
+
+        <div class="payroll-section">
+            <div class="section-header">
+                <h2>📋 Current Payroll Summary</h2>
+                <div><button class="btn btn-primary" onclick="processPayroll()">💰 Process Payroll</button><button class="btn btn-info" onclick="exportPayrollReport()">📊 Export Report</button></div>
+            </div>
+            <div class="filter-bar">
+                <input type="text" id="searchPayroll" placeholder="Search employee..." onkeyup="filterPayroll()">
+                <select id="filterStatus" onchange="filterPayroll()"><option value="">All Status</option><option value="pending">Pending</option><option value="paid">Paid</option></select>
+                <input type="month" id="filterMonth" onchange="filterPayroll()">
+            </div>
+            <div class="table-container">
+                <table id="payrollTable">
+                    <thead>
+                        <tr><th>ID</th><th>Name</th><th>Position</th><th>Hours</th><th>Rate</th><th>Salary</th><th>Tips</th><th>Total</th><th>Status</th><th>Actions</th> </thead>
+                    <tbody id="payrollTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="payroll-section">
+            <div class="section-header"><h2>📜 Payroll History</h2><button class="btn btn-yellow" onclick="viewFullHistory()">View Full History</button></div>
+            <div class="table-container">
+                <table id="historyTable"><thead><tr><th>Date</th><th>Employee</th><th>Hours</th><th>Rate</th><th>Salary</th><th>Tips</th><th>Total</th><th>Status</th></tr></thead>
+                <tbody id="historyTableBody"></tbody></table>
+            </div>
+        </div>
+    </div>
+
+    <div id="payslipModal" class="modal"><div class="modal-content"><h3>📄 Employee Payslip</h3><div id="payslipContent"></div><div style="display:flex; gap:10px; margin-top:20px;"><button class="btn btn-primary" onclick="printPayslip()">🖨️ Print</button><button class="btn btn-danger" onclick="closePayslipModal()">Close</button></div></div></div>
+    <div id="summaryModal" class="modal"><div class="modal-content"><h3>📊 Payroll Summary</h3><div id="summaryContent"></div><button class="btn btn-danger" onclick="closeSummaryModal()">Close</button></div></div>
+    <div id="employeeDetailsModal" class="modal"><div class="modal-content"><h3>👤 Employee Details</h3><div id="employeeDetailsContent"></div><button class="btn btn-danger" onclick="closeEmployeeDetailsModal()">Close</button></div></div>
+    <div id="alert" class="alert"></div>
+
+    <script>
+        let employees = [], attendanceRecords = [], payrollRecords = [];
+
+        function checkAuth() { if(localStorage.getItem('isLoggedIn')!=='true') window.location.href='index.html'; document.getElementById('usernameDisplay').textContent=localStorage.getItem('username')||'Admin'; }
+        function navigateTo(page) { window.location.href = `${page}.html`; }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); }
+        function logout() { if(confirm('Logout?')){ localStorage.clear(); window.location.href='index.html'; } }
+
+        function logActivity(action, user, details, type) {
+            let activities = JSON.parse(localStorage.getItem('activityLogs') || '[]');
+            activities.unshift({ id: Date.now(), action: action, user: user, details: details, type: type, time: new Date().toLocaleString(), timestamp: new Date().toISOString() });
+            if (activities.length > 100) activities = activities.slice(0, 100);
+            localStorage.setItem('activityLogs', JSON.stringify(activities));
+        }
+
+        function loadData(){
+            employees=JSON.parse(localStorage.getItem('employees')||'[]');
+            attendanceRecords=JSON.parse(localStorage.getItem('attendance')||'[]');
+            payrollRecords=JSON.parse(localStorage.getItem('payroll')||'[]');
+            
+            if(employees.length===0){
+                employees = [
+                    { id: 'EMP001', name: 'John Mensah', email: 'john@restaurant.com', position: 'Chef', hourlyRate: 25, hoursWorked: 45, tipsCollected: 120, status: 'active', phone: '+233 20 123 4567', password: 'emp123' },
+                    { id: 'EMP002', name: 'Mary Adjei', email: 'mary@restaurant.com', position: 'Server', hourlyRate: 15, hoursWorked: 38, tipsCollected: 85, status: 'active', phone: '+233 20 123 4568', password: 'emp123' },
+                    { id: 'EMP003', name: 'Kwame Asare', email: 'kwame@restaurant.com', position: 'Bartender', hourlyRate: 18, hoursWorked: 42, tipsCollected: 95, status: 'active', phone: '+233 20 123 4569', password: 'emp123' },
+                    { id: 'EMP004', name: 'Ama Serwaa', email: 'ama@restaurant.com', position: 'Cook', hourlyRate: 20, hoursWorked: 40, tipsCollected: 70, status: 'active', phone: '+233 20 123 4570', password: 'emp123' },
+                    { id: 'EMP005', name: 'Kofi Annan', email: 'kofi@restaurant.com', position: 'Cleaner', hourlyRate: 12, hoursWorked: 35, tipsCollected: 30, status: 'active', phone: '+233 20 123 4571', password: 'emp123' }
+                ];
+                localStorage.setItem('employees', JSON.stringify(employees));
+            }
+            
+            if(payrollRecords.length===0 && employees.length>0) initializeDemoPayroll();
+            updateStats(); renderPayrollTable(); renderHistoryTable();
+        }
+
+        function initializeDemoPayroll(){
+            const currentMonth=new Date().toISOString().slice(0,7);
+            employees.forEach(emp=>{
+                if(emp.status==='active'){
+                    const empAttendance=attendanceRecords.filter(a=>a.empId===emp.id);
+                    const totalHours=empAttendance.reduce((s,a)=>s+a.hoursWorked,0);
+                    const totalTips=empAttendance.reduce((s,a)=>s+(a.tips||0),0);
+                    const salary=totalHours*emp.hourlyRate;
+                    payrollRecords.push({id:Date.now()+Math.random(),empId:emp.id,empName:emp.name,position:emp.position,month:currentMonth,hoursWorked:totalHours,hourlyRate:emp.hourlyRate,salary:salary,tips:totalTips,total:salary+totalTips,status:'pending',processedDate:new Date().toISOString()});
+                }
+            });
+            localStorage.setItem('payroll',JSON.stringify(payrollRecords));
+        }
+
+        function updateStats(){
+            const currentMonth=new Date().toISOString().slice(0,7);
+            const currentPayroll=payrollRecords.filter(p=>p.month===currentMonth);
+            const totalPayroll=currentPayroll.reduce((s,p)=>s+p.total,0);
+            const totalTips=currentPayroll.reduce((s,p)=>s+p.tips,0);
+            document.getElementById('totalPayroll').textContent=`GH₵ ${totalPayroll.toFixed(2)}`;
+            document.getElementById('totalTips').textContent=`GH₵ ${totalTips.toFixed(2)}`;
+            document.getElementById('totalEmployees').textContent=employees.filter(e=>e.status==='active').length;
+            document.getElementById('pendingCount').textContent=currentPayroll.filter(p=>p.status==='pending').length;
+        }
+
+        function renderPayrollTable(){
+            const currentMonth=new Date().toISOString().slice(0,7);
+            let currentPayroll=payrollRecords.filter(p=>p.month===currentMonth);
+            const search=document.getElementById('searchPayroll')?.value.toLowerCase()||'';
+            const status=document.getElementById('filterStatus')?.value||'';
+            if(search) currentPayroll=currentPayroll.filter(p=>p.empName.toLowerCase().includes(search)||p.empId.toLowerCase().includes(search));
+            if(status) currentPayroll=currentPayroll.filter(p=>p.status===status);
+            const tbody=document.getElementById('payrollTableBody');
+            if(currentPayroll.length===0){ tbody.innerHTML='<tr><td colspan="10" style="text-align:center">No payroll data</td></tr>'; return; }
+            tbody.innerHTML=currentPayroll.map(r=>`
+                <tr onclick="showEmployeeDetails('${r.empId}')">
+                    <td>${r.empId}</td>
+                    <td><strong>${r.empName}</strong></td>
+                    <td>${r.position}</td>
+                    <td>${r.hoursWorked.toFixed(1)}h</td>
+                    <td>GH₵ ${r.hourlyRate.toFixed(2)}</td>
+                    <td>GH₵ ${r.salary.toFixed(2)}</td>
+                    <td>GH₵ ${r.tips.toFixed(2)}</td>
+                    <td><strong>GH₵ ${r.total.toFixed(2)}</strong></td>
+                    <td><span class="status-badge status-${r.status}">${r.status==='paid'?'Paid':'Pending'}</span></td>
+                    <td onclick="event.stopPropagation()">
+                        <button onclick="generatePayslip('${r.empId}')" style="background:#fcd116; padding:5px 10px; border:none; border-radius:5px;">📄 Payslip</button>
+                        ${r.status==='pending'?`<button onclick="markAsPaid('${r.empId}')" style="background:#006b3f; color:white; padding:5px 10px; border:none; border-radius:5px;">✅ Pay</button>`:''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderHistoryTable(){
+            let history=payrollRecords.filter(p=>p.status==='paid');
+            const month=document.getElementById('filterMonth')?.value||'';
+            if(month) history=history.filter(p=>p.month===month);
+            history.sort((a,b)=>new Date(b.processedDate)-new Date(a.processedDate));
+            const tbody=document.getElementById('historyTableBody');
+            if(history.length===0){ tbody.innerHTML='<tr><td colspan="8" style="text-align:center">No history</td></tr>'; return; }
+            tbody.innerHTML=history.slice(0,10).map(r=>`
+                <tr onclick="showEmployeeDetails('${r.empId}')" style="cursor:pointer">
+                    <td>${new Date(r.processedDate).toLocaleDateString()}</td>
+                    <td><strong>${r.empName}</strong></td>
+                    <td>${r.hoursWorked.toFixed(1)}h</td>
+                    <td>GH₵ ${r.hourlyRate.toFixed(2)}</td>
+                    <td>GH₵ ${r.salary.toFixed(2)}</td>
+                    <td>GH₵ ${r.tips.toFixed(2)}</td>
+                    <td><strong>GH₵ ${r.total.toFixed(2)}</strong></td>
+                    <td><span class="status-badge status-paid">Paid</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function filterPayroll(){ renderPayrollTable(); renderHistoryTable(); }
+
+        function showEmployeeDetails(empId){
+            const employee = employees.find(e => e.id === empId);
+            if(!employee) return;
+            
+            const totalPay = ((employee.hoursWorked || 0) * (employee.hourlyRate || 0)) + (employee.tipsCollected || 0);
+            
+            document.getElementById('employeeDetailsContent').innerHTML = `
+                <div class="detail-row"><span><strong>ID:</strong></span><span>${employee.id}</span></div>
+                <div class="detail-row"><span><strong>Name:</strong></span><span>${employee.name}</span></div>
+                <div class="detail-row"><span><strong>Position:</strong></span><span>${employee.position}</span></div>
+                <div class="detail-row"><span><strong>Hourly Rate:</strong></span><span>GH₵ ${employee.hourlyRate.toFixed(2)}</span></div>
+                <div class="detail-row"><span><strong>Hours Worked:</strong></span><span>${(employee.hoursWorked || 0).toFixed(1)} hrs</span></div>
+                <div class="detail-row"><span><strong>Tips Collected:</strong></span><span>GH₵ ${(employee.tipsCollected || 0).toFixed(2)}</span></div>
+                <div class="detail-row"><span><strong>Total Pay:</strong></span><span><strong style="color:#006b3f;">GH₵ ${totalPay.toFixed(2)}</strong></span></div>
+                <div class="detail-row"><span><strong>Email:</strong></span><span>${employee.email || 'Not provided'}</span></div>
+                <div class="detail-row"><span><strong>Phone:</strong></span><span>${employee.phone || 'Not provided'}</span></div>
+                <div class="detail-row"><span><strong>Status:</strong></span><span>${employee.status === 'active' ? '✅ Active' : '⏸️ Inactive'}</span></div>
+            `;
+            document.getElementById('employeeDetailsModal').classList.add('active');
+        }
+
+        function closeEmployeeDetailsModal() { document.getElementById('employeeDetailsModal').classList.remove('active'); }
+
+        function processPayroll(){
+            const currentMonth=new Date().toISOString().slice(0,7);
+            const pending=payrollRecords.filter(p=>p.month===currentMonth && p.status==='pending');
+            if(pending.length===0){ showAlert('No pending payroll!','error'); return; }
+            const total=pending.reduce((s,p)=>s+p.total,0);
+            if(confirm(`Process payroll for ${pending.length} employee(s)? Total: GH₵ ${total.toFixed(2)}`)){
+                pending.forEach(r=>{ r.status='paid'; r.processedDate=new Date().toISOString(); });
+                localStorage.setItem('payroll',JSON.stringify(payrollRecords));
+                logActivity('processed payroll', 'Admin', `Processed ${pending.length} employees for GH₵ ${total.toFixed(2)}`, 'payroll');
+                renderPayrollTable(); renderHistoryTable(); updateStats();
+                showAlert(`Payroll processed! Total: GH₵ ${total.toFixed(2)}`,'success');
+            }
+        }
+
+        function markAsPaid(empId){
+            const currentMonth=new Date().toISOString().slice(0,7);
+            const r=payrollRecords.find(p=>p.empId===empId && p.month===currentMonth);
+            if(r && r.status==='pending' && confirm(`Mark ${r.empName} as paid?`)){
+                r.status='paid'; r.processedDate=new Date().toISOString();
+                localStorage.setItem('payroll',JSON.stringify(payrollRecords));
+                logActivity('marked employee paid', 'Admin', `${r.empName} - GH₵ ${r.total.toFixed(2)}`, 'payroll');
+                renderPayrollTable(); renderHistoryTable(); updateStats();
+                showAlert(`${r.empName} marked as paid!`,'success');
+            }
+        }
+
+        function generatePayslip(empId){
+            const currentMonth=new Date().toISOString().slice(0,7);
+            const r=payrollRecords.find(p=>p.empId===empId && p.month===currentMonth);
+            if(!r){ showAlert('Payroll record not found!','error'); return; }
+            const monthName=new Date(r.month+'-01').toLocaleDateString('en-US',{month:'long',year:'numeric'});
+            document.getElementById('payslipContent').innerHTML=`
+                <div class="payslip">
+                    <div class="payslip-header"><h2>🍽️ Restaurant Payroll System</h2><p>Tamale, Ghana</p><h3>PAYSLIP</h3><p>${monthName}</p></div>
+                    <div class="payslip-row"><span><strong>Employee:</strong></span><span>${r.empName} (${r.empId})</span></div>
+                    <div class="payslip-row"><span><strong>Position:</strong></span><span>${r.position}</span></div>
+                    <div class="payslip-row"><span><strong>Hours Worked:</strong></span><span>${r.hoursWorked.toFixed(1)} hrs @ GH₵ ${r.hourlyRate.toFixed(2)}/hr</span></div>
+                    <div class="payslip-row"><span><strong>Base Salary:</strong></span><span>GH₵ ${r.salary.toFixed(2)}</span></div>
+                    <div class="payslip-row"><span><strong>Tips:</strong></span><span>GH₵ ${r.tips.toFixed(2)}</span></div>
+                    <div class="payslip-total"><span><strong>TOTAL PAY:</strong></span><span><strong>GH₵ ${r.total.toFixed(2)}</strong></span></div>
+                    <div style="text-align:center; margin-top:20px; font-size:0.85em;"><p>Status: ${r.status==='paid'?'✅ PAID':'⏳ PENDING'}</p><p>Thank you for your hard work!</p></div>
+                </div>
+            `;
+            document.getElementById('payslipModal').classList.add('active');
+        }
+
+        function printPayslip(){ const w=window.open('','_blank'); w.document.write('<html><head><title>Payslip</title><style>body{font-family:Arial;padding:40px;}</style></head><body>'+document.getElementById('payslipContent').innerHTML+'</body></html>'); w.document.close(); w.print(); }
+        function showPayrollSummary(){ const currentMonth=new Date().toISOString().slice(0,7); const cur=payrollRecords.filter(p=>p.month===currentMonth); const totalPay=cur.reduce((s,p)=>s+p.total,0); const pending=cur.filter(p=>p.status==='pending').length; document.getElementById('summaryContent').innerHTML=`<div class="payslip-row"><span>Total Employees:</span><span>${cur.length}</span></div><div class="payslip-row"><span>Total Hours:</span><span>${cur.reduce((s,p)=>s+p.hoursWorked,0).toFixed(1)} hrs</span></div><div class="payslip-row"><span>Total Salary:</span><span>GH₵ ${cur.reduce((s,p)=>s+p.salary,0).toFixed(2)}</span></div><div class="payslip-row"><span>Total Tips:</span><span>GH₵ ${cur.reduce((s,p)=>s+p.tips,0).toFixed(2)}</span></div><div class="payslip-total"><span><strong>TOTAL PAYROLL:</strong></span><span><strong>GH₵ ${totalPay.toFixed(2)}</strong></span></div><div class="payslip-row"><span>Pending:</span><span>${pending} employees</span></div>`; document.getElementById('summaryModal').classList.add('active'); }
+        function showPendingPayments(){ const curMonth=new Date().toISOString().slice(0,7); const pending=payrollRecords.filter(p=>p.month===curMonth && p.status==='pending'); if(pending.length===0){ showAlert('No pending payments!','success'); return; } let html=`<h4>Pending (${pending.length})</h4>`; pending.forEach(p=>{ html+=`<div class="payslip-row"><span onclick="showEmployeeDetails('${p.empId}')" style="cursor:pointer; color:#006b3f;">${p.empName}</span><span>GH₵ ${p.total.toFixed(2)}</span></div>`; }); html+=`<div class="payslip-total"><span>Total:</span><span>GH₵ ${pending.reduce((s,p)=>s+p.total,0).toFixed(2)}</span></div>`; document.getElementById('summaryContent').innerHTML=html; document.getElementById('summaryModal').classList.add('active'); }
+        function viewFullHistory(){ document.getElementById('filterMonth').value=''; filterPayroll(); showAlert('Showing full history','success'); }
+        function exportPayrollReport(){ const data={exportDate:new Date().toISOString(),payrollRecords}; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})); a.download=`payroll_${new Date().toISOString().split('T')[0]}.json`; a.click(); showAlert('Report exported!','success'); logActivity('exported payroll report', 'Admin', 'Payroll report exported', 'report'); }
+        function closePayslipModal(){ document.getElementById('payslipModal').classList.remove('active'); }
+        function closeSummaryModal(){ document.getElementById('summaryModal').classList.remove('active'); }
+        function showAlert(msg,type){ const a=document.getElementById('alert'); a.textContent=msg; a.className=`alert alert-${type} show`; setTimeout(()=>a.classList.remove('show'),3000); }
+
+        document.getElementById('filterMonth').value=new Date().toISOString().slice(0,7);
+        if(localStorage.getItem('darkMode')==='true') document.body.classList.add('dark-mode');
+        checkAuth(); loadData();
+
+        window.navigateTo=navigateTo; window.toggleSidebar=toggleSidebar; window.toggleDarkMode=toggleDarkMode; window.logout=logout; window.processPayroll=processPayroll; window.filterPayroll=filterPayroll; window.generatePayslip=generatePayslip; window.markAsPaid=markAsPaid; window.printPayslip=printPayslip; window.showPayrollSummary=showPayrollSummary; window.showPendingPayments=showPendingPayments; window.viewFullHistory=viewFullHistory; window.exportPayrollReport=exportPayrollReport; window.closePayslipModal=closePayslipModal; window.closeSummaryModal=closeSummaryModal; window.showEmployeeDetails=showEmployeeDetails; window.closeEmployeeDetailsModal=closeEmployeeDetailsModal;
+    </script>
+</body>
+</html>
